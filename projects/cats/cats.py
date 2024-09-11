@@ -31,6 +31,15 @@ def choose(paragraphs, select, k):
     """
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
+    i = 0
+    for str in paragraphs:
+        if select(str):
+            if i == k:
+                return str
+            else:
+                i += 1
+    return ''
+            
     # END PROBLEM 1
 
 
@@ -50,6 +59,16 @@ def about(topic):
     assert all([lower(x) == x for x in topic]), 'topics should be lowercase.'
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
+    def compare(str):
+        str = lower(str)
+        str = remove_punctuation(str)
+        words = split(str)
+        for i in words:
+            for j in topic:
+                if i == j:
+                    return True
+        return False
+    return compare
     # END PROBLEM 2
 
 
@@ -80,6 +99,17 @@ def accuracy(typed, reference):
     reference_words = split(reference)
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
+    i, match_ = 0, 0
+    if len(typed_words) == 0 and len(reference_words) !=0:
+        return 0.0
+    if len(typed_words) == 0 and len(reference_words) ==0:
+        return 100.0
+    while i < len(typed_words) and i < len(reference_words):
+        print("DEBUG:", typed_words[i], reference_words[i])
+        if typed_words[i] == reference_words[i]:
+            match_ += 1
+        i += 1
+    return (match_ / len(typed_words)) * 100
     # END PROBLEM 3
 
 
@@ -98,6 +128,9 @@ def wpm(typed, elapsed):
     assert elapsed > 0, 'Elapsed time must be positive'
     # BEGIN PROBLEM 4
     "*** YOUR CODE HERE ***"
+    min = elapsed / 60
+    # print("DEBUG:", len(typed), min)
+    return len(typed) / 5 / min 
     # END PROBLEM 4
 
 
@@ -125,6 +158,19 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     """
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    min = limit + 1
+    ret = typed_word
+    for str in word_list:
+        curr = diff_function(typed_word, str, limit)
+        if str == typed_word:
+            return str
+        # print("DEBUG:", curr, ret)
+        if curr < min:
+            min = curr
+            ret = str
+    if min > limit:
+        return typed_word
+    return ret
     # END PROBLEM 5
 
 
@@ -151,7 +197,22 @@ def sphinx_swaps(start, goal, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    def myfunc(temp, temp_goal, ans):
+        if ans > limit:
+            return ans + 1
+        if temp == '':
+            return len(temp_goal) + ans
+        elif temp_goal == '':
+            return len(temp) + ans
+        elif temp[0] == temp_goal[0]:
+            return myfunc(temp[1:], temp_goal[1:], ans)
+        else:
+            return myfunc(temp[1:], temp_goal[1:], ans + 1)
+    if start[0] == goal[0]:
+        return myfunc(start[1:], goal[1:], 0)
+    else:
+        return myfunc(start[1:], goal[1:], 1)
+    # ret > limit
     # END PROBLEM 6
 
 
@@ -172,25 +233,18 @@ def minimum_mewtations(start, goal, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
-
-    if ______________:  # Fill in the condition
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-
-    elif ___________:  # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-
-    else:
-        add = ...  # Fill in these lines
-        remove = ...
-        substitute = ...
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    #assert False, 'Remove this line'
+    def recursion(s, g, ans):
+        if ans > limit:
+            return ans + 1
+        if s == '' or g == '':
+            return ans + abs(len(s) - len(g))
+        if s[0] == g[0]:
+            return recursion(s[1:], g[1:], ans)
+        else:
+            return min(recursion(s[1:], g, ans + 1), recursion(g[0] + s[0:], g, ans + 1),
+                        recursion(s[1:], g[1:], ans + 1))
+    return recursion(start, goal, 0)
 
 
 def final_diff(start, goal, limit):
@@ -232,6 +286,16 @@ def report_progress(sofar, prompt, user_id, upload):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    i, correct = 0, 0
+    while i < len(sofar) and i < len(prompt):
+        if sofar[i] == prompt[i]:
+            correct += 1
+        else:
+            break
+        i += 1
+    ratio = correct / len(prompt)
+    upload({'id': user_id, 'progress': ratio})
+    return ratio
     # END PROBLEM 8
 
 
@@ -254,6 +318,13 @@ def time_per_word(words, times_per_player):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    tpp = []
+    for player in times_per_player:
+        time = []
+        for i in range(len(player) - 1):
+            time.append(player[i + 1] - player[i])
+        tpp.append(time)
+    return match(words, tpp)
     # END PROBLEM 9
 
 
@@ -276,6 +347,22 @@ def fastest_words(match):
     word_indices = range(len(match["words"]))    # contains an *index* for each word
     # BEGIN PROBLEM 10
     "*** YOUR CODE HERE ***"
+    rank = []
+    words = match["words"]
+    times = match["times"]
+    for player in range(len(match["times"])):
+        word = []
+        for i in range(len(match["words"])):
+            player_time = times[player][i]
+            is_fastest = True
+            for j in range(len(match["times"])):
+                if times[j][i] < player_time or (times[j][i] == player_time and player > j):
+                    is_fastest = False
+            if is_fastest:
+                word.append(words[i])
+        rank.append(word)
+    return rank
+
     # END PROBLEM 10
 
 
