@@ -1,0 +1,3 @@
+'store_digits-correct', (0, 70)
+'cumulative_mul-correct', (512, 70)
+'has_cycle_constant-correct', (1024, 70)
